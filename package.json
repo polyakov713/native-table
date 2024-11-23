@@ -1,0 +1,33 @@
+{
+  "name": "native-table",
+  "version": "1.0.0",
+  "description": "",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/polyakov713/native-table.git"
+  },
+  "author": "polyakov713",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/polyakov713/native-table/issues"
+  },
+  "homepage": "https://github.com/polyakov713/native-table#readme",
+  "devDependencies": {
+    "@babel/register": "^7.25.9",
+    "browser-sync": "^3.0.3",
+    "del": "^8.0.0",
+    "gulp": "^5.0.0",
+    "gulp-autoprefixer": "^9.0.0",
+    "gulp-clean-css": "^4.3.0",
+    "gulp-concat-css": "^3.1.0",
+    "gulp-if": "^3.0.0",
+    "gulp-rename": "^2.0.0",
+    "gulp-sass": "^5.1.0",
+    "gulp-uglify-es": "^3.0.0",
+    "sass": "^1.81.0"
+  }
+}

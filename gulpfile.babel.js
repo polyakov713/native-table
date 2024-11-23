@@ -8,6 +8,7 @@ import autoprefixer from 'gulp-autoprefixer';
 import concatCss from 'gulp-concat-css';
 import cleanCss from 'gulp-clean-css';
 
+import ts from 'gulp-typescript';
 import gulpUglifyEs from 'gulp-uglify-es';
 
 import rename from 'gulp-rename';
@@ -48,7 +49,11 @@ async function styles() {
 }
 
 async function scripts() {
-  return src('./src/scripts/*.js')
+  return src('./src/scripts/*.ts')
+    .pipe(ts({
+      noImplicitAny: true,
+      outFile: 'main.js'
+    }))
     .pipe(uglify())
     .pipe(rename({ suffix: '.min' }))
     .pipe(dest('./dist/scripts/'))
@@ -56,7 +61,7 @@ async function scripts() {
 }
 
 function watchAll() {
-  watch('./src/styles/**/*.pcss', styles);
+  watch('./src/styles/**/*.scss', styles);
   watch('./src/scripts/**/*.js', scripts);
   watch('./src/*.html', html);
 }

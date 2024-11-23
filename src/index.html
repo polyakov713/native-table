@@ -2,18 +2,78 @@
 <html lang="ru">
 
 <head>
+  <!-- Meta -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto:wght@400;500;700&display=swap"
+    rel="stylesheet">
+
+  <!-- Assets -->
   <link rel="stylesheet" href="./styles/bundle.min.css">
   <script src="./scripts/main.min.js" defer></script>
+
   <title>Native Table Component</title>
 </head>
 
-<body>
-  <h1>
-    Hello world!
-  </h1>
+<body class="app">
+  <header class="app__header">
+    <h1 class="app__title">
+      Try to manage these users!
+    </h1>
+  </header>
+  <main class="app__main">
+    <section class="users">
+      <div class="base-smart-table users__table">
+        <header class="base-smart-table__header">
+          <h2 class="base-smart-table__title">Users</h2>
+          <form action="#" class="base-smart-table__filter-form">
+            <input type="text" class="base-input" placeholder="Type firstname or lastname">
+            <button type="submit" class="base-button">Filter</button>
+          </form>
+        </header>
+        <table class="base-smart-table__table">
+          <thead>
+            <tr>
+              <th>
+                Firstname
+              </th>
+              <th>
+                Lastname
+              </th>
+              <th>
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr class="base-smart-table__no-data hidden">
+              <td colspan="3" class="base-table__no-data-col">
+                NO DATA
+              </td>
+            </tr>
+            <tr>
+              <td>
+                John
+              </td>
+              <td>
+                Doe
+              </td>
+              <td>
+                <button class="base-button base-button--small">
+                  &#x2715;
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </main>
 </body>
 
 </html>

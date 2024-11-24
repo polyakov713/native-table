@@ -47,9 +47,11 @@ interface ColumnConfig {
 const ui: Record<string, HTMLElement | null> = {
   tableHeader: null,
   tableBody: null,
+  filterForm: null,
 };
 
 let usersList: User[] = [];
+let usersListFiltered: User[] = [];
 
 const COLUMNS: ColumnConfig[] = [
   {
@@ -116,8 +118,10 @@ async function initPage() {
 function initUI() {
   ui.tableHeader = document.querySelector('#table-header');
   ui.tableBody = document.querySelector('#table-body');
+  ui.filterForm = document.querySelector('#filter-form');
 }
 
+// Render start
 function renderTableHeader(config: ColumnConfig[]) {
   let thColumns: string = '';
 
@@ -161,12 +165,35 @@ function renderTableBody<T, K>(config: ColumnConfig[], data: Array<T>, transform
   ui.tableBody.innerHTML = tbodyContent;
 }
 
+// Render End
+
+// Filtering start
+function filterUsers(filterValue: string): User[] {
+  const filterValuePrepared = filterValue.toLowerCase();
+
+  return usersList.filter(({ firstname, lastname }) => firstname.toLowerCase().includes(filterValuePrepared)
+    || lastname.toLowerCase().includes(filterValuePrepared));
+}
+
+function onFilter(event: Event) {
+  event.preventDefault();
+
+  const form = event.target as HTMLFormElement;
+  const filterInput = form.elements[0] as HTMLInputElement;
+  const filterValue = filterInput.value;
+
+  usersListFiltered = filterUsers(filterValue);
+  renderTableBody<User, UserTransformed>(COLUMNS, usersListFiltered, transformUser);
+}
+// Filtering end
+
 function onDocumentReady() {
   initUI();
 
   renderTableHeader(COLUMNS);
+  renderTableBody<User, UserTransformed>(COLUMNS, usersList, transformUser);
 
-  renderTableBody(COLUMNS, usersList);
+  ui.filterForm.addEventListener('submit', onFilter);
 }
 
 document.addEventListener('DOMContentLoaded', onDocumentReady);

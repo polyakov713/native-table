@@ -51,7 +51,6 @@ async function styles() {
 async function scripts() {
   return src('./src/scripts/*.ts')
     .pipe(ts({
-      noImplicitAny: true,
       outFile: 'main.js'
     }))
     .pipe(uglify())
@@ -62,7 +61,7 @@ async function scripts() {
 
 function watchAll() {
   watch('./src/styles/**/*.scss', styles);
-  watch('./src/scripts/**/*.js', scripts);
+  watch('./src/scripts/**/*.ts', scripts);
   watch('./src/*.html', html);
 }
 

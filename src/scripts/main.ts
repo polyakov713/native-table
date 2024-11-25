@@ -51,6 +51,7 @@ const ui: Record<string, HTMLElement | null> = {
 };
 
 let usersList: User[] = [];
+let lastFilterValue: string = '';
 let usersListFiltered: User[] = [];
 
 const COLUMNS: ColumnConfig[] = [
@@ -138,7 +139,7 @@ function renderTableBody<T, K>(config: ColumnConfig[], data: Array<T>, transform
 
     config.forEach((col) => {
       if (col.name === 'actions') {
-        tdColumns += '<td><button class="base-button base-button--small">&#x2715;</button></td>';
+        tdColumns += `<td><button data-id="${dataItem['id']}" class="base-button base-button--small delete-button">&#x2715;</button></td>`;
       } else {
         tdColumns += `<td>${dataItem[col.name]}</td>`;
       }
@@ -169,6 +170,12 @@ function renderTableBody<T, K>(config: ColumnConfig[], data: Array<T>, transform
 
 // Filtering start
 function filterUsers(filterValue: string): User[] {
+  lastFilterValue = filterValue;
+
+  if (!filterValue) {
+    return [...usersList];
+  }
+
   const filterValuePrepared = filterValue.toLowerCase();
 
   return usersList.filter(({ firstname, lastname }) => firstname.toLowerCase().includes(filterValuePrepared)
@@ -187,6 +194,26 @@ function onFilter(event: Event) {
 }
 // Filtering end
 
+// Deleting start
+function deleteUser(userId: number): User[] {
+  return usersList.filter(({ id }) => id !== userId);
+}
+
+function onClickTableBody(event: Event) {
+  const deleteButton: HTMLElement = (event.target as HTMLElement).closest('.delete-button');
+
+  if (!deleteButton) {
+    return;
+  }
+
+  const entityId = Number(deleteButton.dataset.id);
+
+  usersList = deleteUser(entityId);
+  usersListFiltered = filterUsers(lastFilterValue);
+  renderTableBody<User, UserTransformed>(COLUMNS, usersListFiltered, transformUser);
+}
+// Deleting end
+
 function onDocumentReady() {
   initUI();
 
@@ -194,6 +221,8 @@ function onDocumentReady() {
   renderTableBody<User, UserTransformed>(COLUMNS, usersList, transformUser);
 
   ui.filterForm.addEventListener('submit', onFilter);
+
+  ui.tableBody.addEventListener('click', onClickTableBody);
 }
 
 document.addEventListener('DOMContentLoaded', onDocumentReady);

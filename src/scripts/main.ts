@@ -42,6 +42,7 @@ interface UserTransformed {
 interface ColumnConfig {
   name: string
   title: string
+  sortable?: boolean
 }
 
 const ui: Record<string, HTMLElement | null> = {
@@ -50,9 +51,14 @@ const ui: Record<string, HTMLElement | null> = {
   filterForm: null,
 };
 
+interface SortingParams {
+  field: string
+  direction: 'asc' | 'desc'
+}
+
 let usersList: User[] = [];
-let lastFilterValue: string = '';
-let usersListFiltered: User[] = [];
+let currentFilterValue: string = '';
+let currentSortingValue: SortingParams | null = null;
 
 const COLUMNS: ColumnConfig[] = [
   {
@@ -62,10 +68,12 @@ const COLUMNS: ColumnConfig[] = [
   {
     name: 'firstname',
     title: 'Firstname',
+    sortable: true,
   },
   {
     name: 'lastname',
     title: 'Lastname',
+    sortable: true,
   },
   {
     name: 'email',
@@ -113,7 +121,7 @@ function transformUser(user: User): UserTransformed {
 async function initPage() {
   usersList = await fetchUsers();
 
-  renderTableBody<User, UserTransformed>(COLUMNS, usersList, transformUser);
+  updateTableState();
 }
 
 function initUI() {
@@ -127,7 +135,8 @@ function renderTableHeader(config: ColumnConfig[]) {
   let thColumns: string = '';
 
   config.forEach((col) => {
-    thColumns += `<th>${col.title}</th>`;
+    thColumns += `<th data-name="${col.name}"><strong>${col.title}</strong>
+      ${col.sortable ? '<span class="sort sort-asc">&uarr;</span><span class="sort sort-desc">&darr;</span>' : ''}</th>`;
   });
 
   ui.tableHeader.innerHTML = `<tr>${thColumns}</tr>`;
@@ -169,16 +178,14 @@ function renderTableBody<T, K>(config: ColumnConfig[], data: Array<T>, transform
 // Render End
 
 // Filtering start
-function filterUsers(filterValue: string): User[] {
-  lastFilterValue = filterValue;
-
+function filterUsers(list: User[], filterValue: string): User[] {
   if (!filterValue) {
-    return [...usersList];
+    return [...list];
   }
 
   const filterValuePrepared = filterValue.toLowerCase();
 
-  return usersList.filter(({ firstname, lastname }) => firstname.toLowerCase().includes(filterValuePrepared)
+  return list.filter(({ firstname, lastname }) => firstname.toLowerCase().includes(filterValuePrepared)
     || lastname.toLowerCase().includes(filterValuePrepared));
 }
 
@@ -189,8 +196,8 @@ function onFilter(event: Event) {
   const filterInput = form.elements[0] as HTMLInputElement;
   const filterValue = filterInput.value;
 
-  usersListFiltered = filterUsers(filterValue);
-  renderTableBody<User, UserTransformed>(COLUMNS, usersListFiltered, transformUser);
+  currentFilterValue = filterValue;
+  updateTableState();
 }
 // Filtering end
 
@@ -209,10 +216,50 @@ function onClickTableBody(event: Event) {
   const entityId = Number(deleteButton.dataset.id);
 
   usersList = deleteUser(entityId);
-  usersListFiltered = filterUsers(lastFilterValue);
-  renderTableBody<User, UserTransformed>(COLUMNS, usersListFiltered, transformUser);
+  updateTableState();
 }
 // Deleting end
+
+// Sorting start
+function sortUsers(list: User[], params: SortingParams): User[] {
+  if (!params) {
+    return [...list];
+  }
+
+  const { field, direction } = params;
+
+  return [...list].sort((a, b) => {
+    if (a[field] > b[field]) {
+      return direction === 'asc' ? 1 : -1;
+    } else if (a[field] < b[field]) {
+      return direction === 'asc' ? -1 : 1;
+    } else {
+      return 0;
+    }
+  });
+}
+
+function onClickTableHeader(event: Event) {
+  const sortButton: HTMLElement = (event.target as HTMLElement).closest('.sort');
+
+  if (!sortButton) {
+    return;
+  }
+
+  const sortingDir = sortButton.classList.contains('sort-asc') ? 'asc' : 'desc';
+  const sortingField = sortButton.closest('th').dataset.name;
+
+  currentSortingValue = { field: sortingField, direction: sortingDir };
+  updateTableState();
+}
+// Sorting end
+
+function updateTableState() {
+  const usersListFiltered = filterUsers(usersList, currentFilterValue);
+  const usersListFilteredSorted = sortUsers(usersListFiltered, currentSortingValue);
+
+  renderTableBody<User, UserTransformed>(COLUMNS, usersListFilteredSorted, transformUser);
+}
 
 function onDocumentReady() {
   initUI();
@@ -221,8 +268,8 @@ function onDocumentReady() {
   renderTableBody<User, UserTransformed>(COLUMNS, usersList, transformUser);
 
   ui.filterForm.addEventListener('submit', onFilter);
-
   ui.tableBody.addEventListener('click', onClickTableBody);
+  ui.tableHeader.addEventListener('click', onClickTableHeader);
 }
 
 document.addEventListener('DOMContentLoaded', onDocumentReady);

@@ -76,6 +76,19 @@ ul {
     padding: 12px 15px;
     text-align: center;
   }
+
+  th {
+    strong {
+      margin-right: 8px;
+    }
+
+    span {
+      cursor: pointer;
+      &:not(:last-child) {
+        margin-right: 4px;
+      }
+    }
+  }
   
   &__no-data-col {
     text-align: center;

@@ -7,8 +7,8 @@
 
 ## Run dev server
 
-Run command `gulp`
+Run command `npm run start`
 
 ## Production build
 
-Run command `gulp --production`
+Run command `npm run build`
